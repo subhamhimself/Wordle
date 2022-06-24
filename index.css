@@ -1,0 +1,10 @@
+*box{
+    margin: 0.5rem; 
+background-color: #F3F4F6; 
+text-align: center; 
+width: 3rem; 
+height: 3rem; 
+border-radius: 0.25rem; 
+border-color: #F3F4F6; 
+outline: 0; 
+}
