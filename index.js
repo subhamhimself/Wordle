@@ -4,7 +4,7 @@ let keys = keys_backup;
 let words = words_backup;
 let guess = "";
 // let answer = "taste";
-let suggestions_on = true;
+let suggestions_on = false;
 let answer = words_backup[Math.floor((Math.random()*100000000))%words_backup.length];
 let coeff = [0, 0, 0, 0, 0];
 let guess_number = 1;
@@ -205,8 +205,18 @@ for (let i = 1; i < 7; i++) {
         }
     });
 }
+document.getElementById('suggestions-button').addEventListener('click',function(){
+    suggestions_on = !suggestions_on;
+    let temp = 'Turn on';
+    if(suggestions_on)
+    temp = 'Turn off'
+    document.getElementById('suggestions-button').innerHTML = temp;
+    suggest();
+})
 function suggest()
 {
+    if(suggestions_on)
+    {
     let temp = suggestions();
     const element = document.getElementById('list');
     element.innerHTML = '';
@@ -216,6 +226,9 @@ function suggest()
         card.className = 'card';
         element.appendChild(card);
     }
+}
+else
+document.getElementById('list').innerHTML = "";
 }
 if(suggestions_on)
 {
