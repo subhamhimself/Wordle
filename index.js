@@ -1,14 +1,14 @@
 import { keys_backup, words_backup } from './words.js'
 let keys = keys_backup;
 let words = words_backup;
-let guess = "GUESS";
-let answer = "GUESS";
+let guess = "";
+let answer = "soare";
 let coeff = [0, 0, 0, 0, 0];
 let guess_number = 1;
 let game_over = 0;
 
 function compare(x, y) {
-    coeff = [0,0,0,0,0];
+    coeff = [0, 0, 0, 0, 0];
     let a = x.split("");
     let b = y.split("");
     // console.log(a+' '+b);
@@ -17,23 +17,44 @@ function compare(x, y) {
         if (a[i] == b[i]) {
             coeff[i] = 2;
             b[i] = ' ';
-            a[i]='_';
+            a[i] = '_';
         }
     // else {
     for (let i = 0; i < 5; i++)
-    if(b[i]!=' ')
-    {
-        coeff[i] = 0;
-        j = -1;
-        while (++j < 5)
-            if (b[j] == a[i]) {
-                coeff[i] = 1;
-                b[j] = ' ';
-                break;
-            }
-    }
+        if (b[i] != ' ') {
+            coeff[i] = 0;
+            j = -1;
+            while (++j < 5)
+                if (b[j] == a[i]) {
+                    coeff[i] = 1;
+                    b[j] = ' ';
+                    break;
+                }
+        }
     return coeff[0] + 3 * coeff[1] + 9 * coeff[2] + 27 * coeff[3] + 81 * coeff[4];
 }
+
+function calculate_score(s) 
+{
+    // f(i,243)
+    let x = new Array(243); 
+    for (let i=0; i<243; i++) x[i] = 0;
+    for(let i=0;i<243;i++)
+    x[i]=0;
+    let ans=0.00;
+
+    words.forEach(element => {
+        x[compare(s,element)]++;
+    });
+    let t=words.length;
+    for (let i=0; i<243; i++)
+    if(x[i]>0)
+    if(x[i]>0) ans += x[i]*Math.log2(t/x[i]);
+    return ans/t;
+}
+
+
+
 function colour() {
     if (compare(guess, answer) == 242) game_over = 1;
     for (let i = 0; i < 5; i++)
@@ -45,21 +66,23 @@ function colour() {
 
 }
 
-function filter_data(input, result) {
-    let n = keys.size;
-    f(i, n)
+function filter_data() {
+    let result = compare(guess,answer);
+    let n = keys.length;
+    console.log(n);
+    let arr = new Array();
+    console.log(keys);
+    // f(i, n)
+    // for(let i=0;i<n;i++)
     for (let i = 0; i < n; i++)
-        if (compare(input, words[i]) != result)
-            keys[i][0] = ' ';
-    let i = 0, j = 0;
-    while (i < n) {
-        if (words[i][0] != ' ')
-            words[j++] = words[i];
-        i++;
-    }
-    n = j;
-    while (words.length > n) words.pop();
-    // words.resize(n);
+        if (compare(guess, keys[i]) == result)
+        arr.push(keys[i]);
+    keys = arr;
+}
+function is_valid_word(word) {
+    for (var j = 0; j < keys_backup.length; j++)
+        if (keys_backup[j].match(word)) return 1;
+    return 0;
 }
 
 
@@ -127,22 +150,29 @@ for (let i = 1; i < 7; i++) {
             guess = "";
             let p = document.querySelectorAll('#Guess' + i + ' > *[id]');
             for (let i = 0; i < 5; i++)
-                // guess[i] = p[i].value;
-                guess += p[i].value;
-            console.log(guess);
-            colour();
-            if (game_over == 1) {
-                temp.setAttribute('readonly', true);
-                console.log("win in " + guess_number + ' guesses');
-            }
+                guess += p[i].value.toLowerCase();
+            console.log(calculate_score( guess));
+            // console.log(!is_valid_word(guess));
+
+            if (!is_valid_word(guess))
+                alert("Invalid word entered !");
             else {
-                guess_number++;
-                temp.setAttribute('readonly', true);
-                if (guess_number < 7) {
-                    document.getElementById('field' + guess_number + 0).removeAttribute('readonly');
-                    document.getElementById('field' + guess_number + 0).focus();
+                // console.log(guess);
+                colour();
+                if (game_over == 1) {
+                    temp.setAttribute('readonly', true);
+                    console.log("win in " + guess_number + ' guesses');
                 }
-                else console.log("You lost");
+                else {
+                    guess_number++;
+                    temp.setAttribute('readonly', true);
+                    if (guess_number < 7) {
+                        document.getElementById('field' + guess_number + 0).removeAttribute('readonly');
+                        document.getElementById('field' + guess_number + 0).focus();
+                    }
+                    else console.log("You lost");
+                }
+                filter_data(guess,compare(guess,answer));
             }
         }
     });
