@@ -1,8 +1,11 @@
-import { keys_backup, words_backup } from './words.js'
+import { keys_backup, words_backup, initial_suggestions } from './words.js'
+// import initial_suggestions from './suggestions.js'
 let keys = keys_backup;
 let words = words_backup;
 let guess = "";
-let answer = "soare";
+// let answer = "taste";
+let suggestions_on = true;
+let answer = words_backup[Math.floor((Math.random()*100000000))%words_backup.length];
 let coeff = [0, 0, 0, 0, 0];
 let guess_number = 1;
 let game_over = 0;
@@ -68,16 +71,16 @@ function colour() {
 
 function filter_data() {
     let result = compare(guess,answer);
-    let n = keys.length;
+    let n = words.length;
     console.log(n);
     let arr = new Array();
-    console.log(keys);
+    // console.log(keys);
     // f(i, n)
     // for(let i=0;i<n;i++)
     for (let i = 0; i < n; i++)
-        if (compare(guess, keys[i]) == result)
-        arr.push(keys[i]);
-    keys = arr;
+        if (compare(guess, words[i]) == result)
+        arr.push(words[i]);
+    words = arr;
 }
 function is_valid_word(word) {
     for (var j = 0; j < keys_backup.length; j++)
@@ -86,7 +89,25 @@ function is_valid_word(word) {
 }
 
 
-
+function suggestions()  //perfect
+{
+    // priority_queue<pair<double,string> > scores;
+    if(words.length>2000) return initial_suggestions;
+    let scores = [];
+    if(words.length<=2)
+    {
+        scores.push([calculate_score(words[0]),words[0]]);
+        if(words.length==2)
+        scores.push([calculate_score(words[1]),words[1]]);
+    }
+    else for(let i=0;i<keys.length;i++)
+    scores.push([calculate_score(keys[i]),keys[i]]);
+    scores.sort();
+    scores.reverse();
+    return scores;
+}
+// console.log(suggestions());
+// console.log(initial_suggestions);
 
 
 
@@ -169,13 +190,36 @@ for (let i = 1; i < 7; i++) {
                     if (guess_number < 7) {
                         document.getElementById('field' + guess_number + 0).removeAttribute('readonly');
                         document.getElementById('field' + guess_number + 0).focus();
+                        filter_data(guess,compare(guess,answer));
+                    // console.log(words.length + ' words remain');
+                    // console.log(suggestions()[0]);
+                    suggest();
                     }
                     else console.log("You lost");
+                    
                 }
-                filter_data(guess,compare(guess,answer));
+
+                // console.log(suggestions());
+
             }
         }
     });
+}
+function suggest()
+{
+    let temp = suggestions();
+    const element = document.getElementById('list');
+    element.innerHTML = '';
+    for (let i = 0; i < 10 && i<temp.length; i++) {  
+        let card = document.createElement('div');
+        card.innerHTML = '<div class="container"\>\<h4\>\<b\>'+temp[i][1]+'\</b\>\</h4\>\<p\>'+temp[i][0]+'\</p\>\</div\>'
+        card.className = 'card';
+        element.appendChild(card);
+    }
+}
+if(suggestions_on)
+{
+    suggest();
 }
 
 document.getElementById('field' + 1 + 0).focus();
