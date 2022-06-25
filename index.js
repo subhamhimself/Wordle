@@ -221,9 +221,9 @@ function suggest() {
         const element = document.getElementById('list');
         element.innerHTML = '';
 
-        for (let i = 0; i < 10 && i < temp.length; i++) {
+        for (let i = 0; i < 9 && i < temp.length; i++) {
             let sugg = document.createElement('div');
-            sugg.className = "bg-green-300 flex flex-row my-1 border-2 border-black disable-select disable-select"
+            sugg.className = "hover:bg-green-500 bg-green-300 flex flex-row my-1 border-2 border-black disable-select disable-select"
             let wrd = document.createElement('h1');
             wrd.innerHTML = temp[i][1].toUpperCase();
             wrd.className = "text-xl mx-2 flex-1 font-bold";
