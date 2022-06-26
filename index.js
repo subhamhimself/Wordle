@@ -1,16 +1,16 @@
-import { keys_backup, words_backup, initial_suggestions } from './words.js'
+import { keys_backup, words_backup, initial_suggestions,initial_rare_suggestions } from './words.js'
 // import initial_suggestions from './suggestions.js'
 
 let keys = keys_backup;
 let words = words_backup;
 let guess = "";
 let games_played = 0;
-let allow_rare_words=1;
+let allow_rare_words = false;
 let total_guesses = 0;
 // let answer = "taste";
 let score_of_guess = 0;
 let old_size = 1;
-let suggestions_on = true;
+let suggestions_on = false;
 let stats = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 let answer = words_backup[Math.floor((Math.random() * 100000000)) % words_backup.length];
 let coeff = [0, 0, 0, 0, 0];
@@ -195,11 +195,13 @@ function suggestions()  //perfect
     //         scores.push([calculate_score(words[i]), words[i]]);
     // else
     if (allow_rare_words) {
-        if (words.length == words_backup.length) return initial_suggestions;
+        if (words.length == words_backup.length) return initial_rare_suggestions;
         for (let i = 0; i < keys.length; i++)
             scores.push([calculate_score(keys[i]), keys[i]]);
     }
     else for (let i = 0; i < words_backup.length; i++)
+        if (words.length == words_backup.length) return initial_suggestions;
+        else
             scores.push([calculate_score(words_backup[i]), words_backup[i]]);
 
 
@@ -323,7 +325,11 @@ document.getElementById('suggestions-button').addEventListener('click', function
     document.getElementById('suggestions-button').innerHTML = temp;
     suggest();
 })
-
+document.getElementById('rare-words').addEventListener('click', function () {
+    // suggestions_on = !suggestions_on;
+    allow_rare_words = !allow_rare_words;
+    suggest();
+})
 function score_analyse() {
     total_guesses += guess_number;
     games_played++;
