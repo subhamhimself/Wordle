@@ -233,7 +233,7 @@ function analyze() {
         sugg.appendChild(wrd);
     wrd = document.createElement('h1');
     wrd.className = "text-xl flex-1 font-bold"
-    wrd.innerHTML = -Math.log2(words.length / old_size).toPrecision(5);
+    wrd.innerHTML = (-Math.log2(words.length / old_size)).toPrecision(5);
     if (!game_over)
         sugg.appendChild(wrd);
     element.appendChild(sugg);
