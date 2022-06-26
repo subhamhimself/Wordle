@@ -1,13 +1,10 @@
 import { keys_backup, words_backup, initial_suggestions,initial_rare_suggestions } from './words.js'
-// import initial_suggestions from './suggestions.js'
-
 let keys = keys_backup;
 let words = words_backup;
 let guess = "";
 let games_played = 0;
 let allow_rare_words = false;
 let total_guesses = 0;
-// let answer = "taste";
 let score_of_guess = 0;
 let old_size = 1;
 let suggestions_on = false;
@@ -16,7 +13,6 @@ let answer = words_backup[Math.floor((Math.random() * 100000000)) % words_backup
 let coeff = [0, 0, 0, 0, 0];
 let guess_number = 1;
 let game_over = 0;
-// let avoid_rare_words = true;
 
 function start_game() {
     document.getElementById('guess-analysis').innerHTML = '';
@@ -26,35 +22,24 @@ function start_game() {
 
     guess = "";
     answer = words_backup[Math.floor((Math.random() * 100000000)) % words_backup.length];
-    // answer = 'drama';
-    // answer = 'guess';
     coeff = [0, 0, 0, 0, 0];
     guess_number = 1;
     game_over = 0;
-    /* This creates all the OTP input fields dynamically. Change the5 variable  to change the OTP Length */
     for (let k = 1; k <= 6; k++) {
         const element = document.getElementById('Guess' + k);
         element.innerHTML = '';
         for (let i = 0; i < 5; i++) {
-            let inputField = document.createElement('input'); // Creates a new input element
-            // inputField.className = "w-12 h-12 bg-gray-100 border-gray-100 outline-none focus:bg-gray-200 m-2 text-center rounded focus:border-blue-400 focus:shadow-outline";
+            let inputField = document.createElement('input');
             inputField.className = "w-12 h-12 bg-gray-100 border-gray-100 shadow-outline focus:bg-gray-200 m-2 text-center rounded focus:border-blue-400 focus:shadow-outline";
-            // inputField.className = "w-12 h-12 bg-gray-200 border-blue-400 shadow-outline m-2 text-center rounded ";
-
-            // Do individual OTP input styling here;
-            inputField.style.cssText = "font-size: 26px; text-shadow: 0 0 0 gray;"; // Infield text styling. This css hides the text caret
-            inputField.id = 'field' + k + i; // Don't remove
-            inputField.maxLength = 1; // Sets individfield length to 1 char
-            // if (i!=0 || k!=1) inputField.readonly = true;
-            element.appendChild(inputField); // Adds the infield to the parent div (Guess)
+            inputField.style.cssText = "font-size: 26px; text-shadow: 0 0 0 gray;";
+            inputField.id = 'field' + k + i;
+            inputField.maxLength = 1;
+            element.appendChild(inputField);
         }
-        /*  This is for switching back and forth the input box for user experience */
         const inputs = document.querySelectorAll('#Guess' + k + ' > *[id]');
         for (let i = 0; i < inputs.length; i++)
             if (k != 1 || i != 0)
                 inputs[i].setAttribute('readonly', true);
-        // else inputs[i].setAttribute('readonly',false);
-
         for (let i = 0; i < inputs.length; i++) {
             inputs[i].addEventListener('keydown', function (event) {
                 if (event.key === "Backspace") {
@@ -71,7 +56,7 @@ function start_game() {
                 }
             });
             inputs[i].addEventListener('input', function () {
-                inputs[i].value = inputs[i].value.toUpperCase(); // Converts to Upper case. Remove .toUpperCase() if conversion isnt required.
+                inputs[i].value = inputs[i].value.toUpperCase();
                 if (inputs[i].value > 'Z' || inputs[i].value < 'A') inputs[i].value = '';
                 if (i === inputs.length - 1 && inputs[i].value !== '') {
                     return true;
@@ -121,7 +106,6 @@ function compare(x, y) {
         }
     for (let i = 0; i < 5; i++)
         if (a[i] != '_')
-        // else 
         {
             coeff[i] = 0;
             j = -1;
@@ -136,7 +120,6 @@ function compare(x, y) {
 }
 
 function calculate_score(s) {
-    // f(i,243)
     let x = new Array(243);
     for (let i = 0; i < 243; i++) x[i] = 0;
     for (let i = 0; i < 243; i++)
@@ -172,28 +155,21 @@ function filter_data() {
     let n = words.length;
     old_size = n;
     let arr = new Array();
-    // f(i, n)
-    // for(let i=0;i<n;i++)
     for (let i = 0; i < n; i++)
         if (compare(guess, words[i]) == result)
             arr.push(words[i]);
     words = arr;
 }
 function is_in_array(word, arr) {
-    // return 1;
     for (var j = 0; j < arr.length; j++)
         if (arr[j].match(word)) return 1;
     return 0;
 }
 
 
-function suggestions()  //perfect
+function suggestions()
 {
     let scores = [];
-    // if(words.length<10)
-    // for (let i = 0; i < words.length; i++)
-    //         scores.push([calculate_score(words[i]), words[i]]);
-    // else
     if (allow_rare_words) {
         if (words.length == words_backup.length) return initial_rare_suggestions;
         for (let i = 0; i < keys.length; i++)
@@ -210,8 +186,6 @@ function suggestions()  //perfect
     return scores;
 }
 function analyze() {
-    // if(!guess_analysis) return;
-    // document.getElementById('info').innerHTML = Math.log2(words.length).toPrecision(5);
     document.getElementById('info').innerHTML = Math.log2(words.length).toPrecision(5) + ' Bits';
 
     let element = document.getElementById('guess-analysis');
@@ -262,10 +236,6 @@ function suggest() {
             if (temp[i][0])
                 sugg.append(wrd);
             sugg.append(scr);
-
-            // sugg.style.height = '40px';
-            // sugg.style.border = 'black';
-            // sugg.className = "border-2 border-sky-500";
             element.appendChild(sugg);
         }
         let cards = element.children;
@@ -273,7 +243,6 @@ function suggest() {
             cards[i].addEventListener('click', function () {
                 guess = temp[i][1];
                 Input();
-                // analyze();
             });
 
     }
@@ -284,22 +253,17 @@ function Input() {
     score_of_guess = calculate_score(guess);
 
     let temp = document.getElementById('Guess' + guess_number);
-    // temp.innerHTML = a;
     let fields = temp.children;
     for (let i = 0; i < 5; i++)
         fields[i].value = guess[i].toUpperCase();
     colour();
     if (game_over == 1) {
-        // temp.setAttribute('readonly', true);
-        // alert('You won in ' + guess_number + ' guesses!')
         analyze();
         score_analyse();
         suggest();
-        // start_game();
     }
     else {
         guess_number++;
-        // temp.setAttribute('readonly', true);
         if (guess_number < 7) {
             document.getElementById('field' + guess_number + 0).removeAttribute('readonly');
             document.getElementById('field' + guess_number + 0).focus();
@@ -308,10 +272,8 @@ function Input() {
             suggest();
         }
         else {
-            // alert('You lost');
             game_over = 1;
             score_analyse();
-            // start_game();
         }
 
     }
@@ -326,7 +288,6 @@ document.getElementById('suggestions-button').addEventListener('click', function
     suggest();
 })
 document.getElementById('rare-words').addEventListener('click', function () {
-    // suggestions_on = !suggestions_on;
     allow_rare_words = !allow_rare_words;
     suggest();
 })
@@ -345,8 +306,6 @@ function score_analyse() {
 document.getElementById('restart-game').addEventListener('click', function () {
     start_game();
 });
-
-
 start_game();
 
 
