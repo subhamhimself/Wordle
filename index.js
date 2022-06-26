@@ -25,8 +25,8 @@ function start_game() {
     document.getElementById('info').innerHTML = Math.log2(words.length).toPrecision(5) + ' Bits';
 
     guess = "";
-    // answer = words_backup[Math.floor((Math.random() * 100000000)) % words_backup.length];
-    answer = 'drama';
+    answer = words_backup[Math.floor((Math.random() * 100000000)) % words_backup.length];
+    // answer = 'drama';
     // answer = 'guess';
     coeff = [0, 0, 0, 0, 0];
     guess_number = 1;
