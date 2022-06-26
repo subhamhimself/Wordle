@@ -4,19 +4,30 @@ import { keys_backup, words_backup, initial_suggestions } from './words.js'
 let keys = keys_backup;
 let words = words_backup;
 let guess = "";
+let games_played = 0;
+let allow_rare_words=1;
+let total_guesses = 0;
 // let answer = "taste";
+let score_of_guess = 0;
+let old_size = 1;
 let suggestions_on = true;
+let stats = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 let answer = words_backup[Math.floor((Math.random() * 100000000)) % words_backup.length];
 let coeff = [0, 0, 0, 0, 0];
 let guess_number = 1;
 let game_over = 0;
+// let avoid_rare_words = true;
 
 function start_game() {
+    document.getElementById('guess-analysis').innerHTML = '';
     keys = keys_backup.slice();
     words = words_backup.slice();
-    console.log(keys);
+    document.getElementById('info').innerHTML = Math.log2(words.length).toPrecision(5) + ' Bits';
+
     guess = "";
-    answer = words_backup[Math.floor((Math.random() * 100000000)) % words_backup.length];
+    // answer = words_backup[Math.floor((Math.random() * 100000000)) % words_backup.length];
+    answer = 'drama';
+    // answer = 'guess';
     coeff = [0, 0, 0, 0, 0];
     guess_number = 1;
     game_over = 0;
@@ -76,47 +87,21 @@ function start_game() {
     for (let i = 1; i < 7; i++) {
         let temp = document.getElementById('field' + i + 4);
         temp.addEventListener('keydown', function (event) {
-            if (event.key == 'Enter' && temp.value != '') {
-                guess = "";
-                let p = document.querySelectorAll('#Guess' + i + ' > *[id]');
-                for (let i = 0; i < 5; i++)
-                    guess += p[i].value.toLowerCase();
-                if (!is_valid_word(guess))
-                    alert("Invalid word entered !");
-                else {
-                    colour();
-                    if (game_over == 1) {
-                        temp.setAttribute('readonly', true);
-                        alert('You won in ' + guess_number + ' guesses!')
-                        start_game();
-                    }
-                    else {
-                        guess_number++;
-                        temp.setAttribute('readonly', true);
-                        if (guess_number < 7) {
-                            document.getElementById('field' + guess_number + 0).removeAttribute('readonly');
-                            document.getElementById('field' + guess_number + 0).focus();
-                            filter_data(guess, compare(guess, answer));
-                            suggest();
-                        }
-                        else {
-                            alert('You lost');
-                            start_game();
-                        }
-                    }
+            if (event.key == 'Enter' && temp.value != '')
+                if (!game_over) {
+                    guess = "";
+                    let p = document.querySelectorAll('#Guess' + i + ' > *[id]');
+                    for (let i = 0; i < 5; i++)
+                        guess += p[i].value.toLowerCase();
+                    if (!is_in_array(guess, keys_backup))
+                        alert("Invalid word entered !");
+                    else Input();
                 }
-            }
+                else {
+                    start_game();
+                }
         });
     }
-    document.getElementById('suggestions-button').addEventListener('click', function () {
-        suggestions_on = !suggestions_on;
-        let temp = 'Turn on suggestions';
-        if (suggestions_on)
-            temp = 'Turn off suggestions'
-        document.getElementById('suggestions-button').innerHTML = temp;
-        suggest();
-    })
-
     if (suggestions_on) {
         suggest();
     }
@@ -135,7 +120,9 @@ function compare(x, y) {
             a[i] = '_';
         }
     for (let i = 0; i < 5; i++)
-        if (b[i] != ' ') {
+        if (a[i] != '_')
+        // else 
+        {
             coeff[i] = 0;
             j = -1;
             while (++j < 5)
@@ -169,6 +156,7 @@ function calculate_score(s) {
 
 
 function colour() {
+
     if (compare(guess, answer) == 242) game_over = 1;
     for (let i = 0; i < 5; i++)
         if (coeff[i] == 0)
@@ -182,9 +170,8 @@ function colour() {
 function filter_data() {
     let result = compare(guess, answer);
     let n = words.length;
-    console.log(n);
+    old_size = n;
     let arr = new Array();
-    // console.log(keys);
     // f(i, n)
     // for(let i=0;i<n;i++)
     for (let i = 0; i < n; i++)
@@ -192,38 +179,75 @@ function filter_data() {
             arr.push(words[i]);
     words = arr;
 }
-function is_valid_word(word) {
-    for (var j = 0; j < keys_backup.length; j++)
-        if (keys_backup[j].match(word)) return 1;
+function is_in_array(word, arr) {
+    // return 1;
+    for (var j = 0; j < arr.length; j++)
+        if (arr[j].match(word)) return 1;
     return 0;
 }
 
 
 function suggestions()  //perfect
 {
-    // priority_queue<pair<double,string> > scores;
-    if (words.length > 2000) return initial_suggestions;
     let scores = [];
-    if (words.length <= 2) {
-        scores.push([calculate_score(words[0]), words[0]]);
-        if (words.length == 2)
-            scores.push([calculate_score(words[1]), words[1]]);
+    // if(words.length<10)
+    // for (let i = 0; i < words.length; i++)
+    //         scores.push([calculate_score(words[i]), words[i]]);
+    // else
+    if (allow_rare_words) {
+        if (words.length == words_backup.length) return initial_suggestions;
+        for (let i = 0; i < keys.length; i++)
+            scores.push([calculate_score(keys[i]), keys[i]]);
     }
-    else for (let i = 0; i < keys.length; i++)
-        scores.push([calculate_score(keys[i]), keys[i]]);
+    else for (let i = 0; i < words_backup.length; i++)
+            scores.push([calculate_score(words_backup[i]), words_backup[i]]);
+
+
     scores.sort();
     scores.reverse();
     return scores;
 }
+function analyze() {
+    // if(!guess_analysis) return;
+    // document.getElementById('info').innerHTML = Math.log2(words.length).toPrecision(5);
+    document.getElementById('info').innerHTML = Math.log2(words.length).toPrecision(5) + ' Bits';
+
+    let element = document.getElementById('guess-analysis');
+    let sugg = document.createElement('div');
+    if (score_of_guess <= -Math.log2(words.length / old_size) && score_of_guess > 0)
+        sugg.className = "bg-green-300 flex flex-row my-1 border-2 border-black disable-select disable-select"
+    else sugg.className = "bg-red-300 flex flex-row my-1 border-2 border-black disable-select disable-select"
+    if (game_over)
+        sugg.className = "bg-green-300 flex flex-row my-1 border-2 border-black disable-select disable-select"
+    let wrd = document.createElement('h1');
+    wrd.innerHTML = guess.toUpperCase();
+    if (game_over) wrd.innerHTML = guess.toUpperCase() + '  is the answer !';
+    wrd.className = "text-xl mx-2 flex-1 font-bold";
+    sugg.appendChild(wrd);
+    wrd = document.createElement('h1');
+    wrd.innerHTML = score_of_guess.toPrecision(5);
+    wrd.className = "text-xl mx-2 flex-1 font-bold";
+    if (!game_over)
+        sugg.appendChild(wrd);
+    wrd = document.createElement('h1');
+    wrd.className = "text-xl flex-1 font-bold"
+    wrd.innerHTML = -Math.log2(words.length / old_size).toPrecision(5);
+    if (!game_over)
+        sugg.appendChild(wrd);
+    element.appendChild(sugg);
+}
 function suggest() {
-    if (suggestions_on) {
+    if (game_over || (guess_number > 6))
+        document.getElementById('list').innerHTML = "";
+    else if (suggestions_on) {
         let temp = suggestions();
         const element = document.getElementById('list');
         element.innerHTML = '';
-
+        if (words.length == 1)
+            temp = [[0, words[0]]];
         for (let i = 0; i < 9 && i < temp.length; i++) {
             let sugg = document.createElement('div');
-            sugg.className = "hover:bg-green-500 bg-green-300 flex flex-row my-1 border-2 border-black disable-select disable-select"
+            sugg.className = "hover:bg-yellow-300 bg-yellow-200 flex flex-row my-1 border-2 border-black disable-select disable-select"
             let wrd = document.createElement('h1');
             wrd.innerHTML = temp[i][1].toUpperCase();
             wrd.className = "text-xl mx-2 flex-1 font-bold";
@@ -245,48 +269,78 @@ function suggest() {
         let cards = element.children;
         for (let i = 0; i < cards.length; i++)
             cards[i].addEventListener('click', function () {
-                Input(temp[i][1]);
-                // console.log(temp[i][1]);
+                guess = temp[i][1];
+                Input();
+                // analyze();
             });
 
     }
     else
         document.getElementById('list').innerHTML = "";
 }
-function Input(a) {
-    // console.log(a);
+function Input() {
+    score_of_guess = calculate_score(guess);
+
     let temp = document.getElementById('Guess' + guess_number);
     // temp.innerHTML = a;
     let fields = temp.children;
     for (let i = 0; i < 5; i++)
-        fields[i].value = a[i].toUpperCase();
-    guess = a;
+        fields[i].value = guess[i].toUpperCase();
     colour();
     if (game_over == 1) {
-        temp.setAttribute('readonly', true);
-        // console.log("win in " + guess_number + ' guesses');
-        alert('You won in ' + guess_number + ' guesses!')
-        start_game();
+        // temp.setAttribute('readonly', true);
+        // alert('You won in ' + guess_number + ' guesses!')
+        analyze();
+        score_analyse();
+        suggest();
+        // start_game();
     }
     else {
         guess_number++;
-        temp.setAttribute('readonly', true);
+        // temp.setAttribute('readonly', true);
         if (guess_number < 7) {
             document.getElementById('field' + guess_number + 0).removeAttribute('readonly');
             document.getElementById('field' + guess_number + 0).focus();
             filter_data(guess, compare(guess, answer));
-            // console.log(words.length + ' words remain');
-            // console.log(suggestions()[0]);
+            analyze();
             suggest();
         }
         else {
-            alert('You lost');
-            start_game();
+            // alert('You lost');
+            game_over = 1;
+            score_analyse();
+            // start_game();
         }
 
     }
 
 }
+document.getElementById('suggestions-button').addEventListener('click', function () {
+    suggestions_on = !suggestions_on;
+    let temp = 'Turn on suggestions';
+    if (suggestions_on)
+        temp = 'Turn off suggestions'
+    document.getElementById('suggestions-button').innerHTML = temp;
+    suggest();
+})
+
+function score_analyse() {
+    total_guesses += guess_number;
+    games_played++;
+    stats[guess_number]++;
+    document.getElementById('played').innerHTML = games_played;
+    document.getElementById('average').innerHTML = (total_guesses / games_played).toPrecision(3);
+    for (let i = 1; i <= 6; i++)
+        document.getElementById('stat' + i).innerHTML = i + ':' + stats[i];
+    document.getElementById('fail').innerHTML = stats[7];
+
+
+}
+document.getElementById('restart-game').addEventListener('click', function () {
+    start_game();
+});
+
+
 start_game();
 
 
