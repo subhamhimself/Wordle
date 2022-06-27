@@ -1,5 +1,5 @@
-import { keys_backup, words_backup, initial_suggestions,initial_rare_suggestions } from './words.js'
-let keys = keys_backup;
+import { keys_backup, words_backup, initial_suggestions, initial_rare_suggestions } from './words.js'
+let rare_words = keys_backup;
 let words = words_backup;
 let guess = "";
 let games_played = 0;
@@ -16,7 +16,7 @@ let game_over = 0;
 
 function start_game() {
     document.getElementById('guess-analysis').innerHTML = '';
-    keys = keys_backup.slice();
+    rare_words = keys_backup.slice();
     words = words_backup.slice();
     document.getElementById('info').innerHTML = Math.log2(words.length).toPrecision(5) + ' Bits';
 
@@ -105,8 +105,7 @@ function compare(x, y) {
             a[i] = '_';
         }
     for (let i = 0; i < 5; i++)
-        if (a[i] != '_')
-        {
+        if (a[i] != '_') {
             coeff[i] = 0;
             j = -1;
             while (++j < 5)
@@ -167,22 +166,21 @@ function is_in_array(word, arr) {
 }
 
 
-function suggestions()
-{
+function suggestions() {
+    if (allow_rare_words && words.length == words_backup.length) return initial_rare_suggestions;
+    if (words.length == words_backup.length) return initial_suggestions;
     let scores = [];
-    if (allow_rare_words) {
-        if (words.length == words_backup.length) return initial_rare_suggestions;
-        for (let i = 0; i < keys.length; i++)
-            scores.push([calculate_score(keys[i]), keys[i]]);
-    }
-    else for (let i = 0; i < words_backup.length; i++)
-        if (words.length == words_backup.length) return initial_suggestions;
-        else
-            scores.push([calculate_score(words_backup[i]), words_backup[i]]);
-
+    for (let i = 0; i < words.length; i++)
+        scores.push([calculate_score(words[i]) + 0.00002, words[i]]);
+    for (let i = 0; i < words_backup.length; i++)
+        scores.push([calculate_score(words_backup[i]) + 0.00001, words_backup[i]]);
+    if (allow_rare_words)
+        for (let i = 0; i < rare_words.length; i++)
+            scores.push([calculate_score(rare_words[i]), rare_words[i]]);
 
     scores.sort();
     scores.reverse();
+    scores = scores.slice(0,40);
     return scores;
 }
 function analyze() {
@@ -221,6 +219,15 @@ function suggest() {
         element.innerHTML = '';
         if (words.length == 1)
             temp = [[0, words[0]]];
+        let t = [];
+        let k =[];
+        for(let i=0;i<35 && i<temp.length;i++)
+        if(!is_in_array(temp[i][1],t))
+        {
+        k.push(temp[i]);
+        t.push(temp[i][1]);
+        }
+        temp = k;
         for (let i = 0; i < 9 && i < temp.length; i++) {
             let sugg = document.createElement('div');
             sugg.className = "hover:bg-yellow-300 bg-yellow-200 flex flex-row my-1 border-2 border-black disable-select disable-select"
